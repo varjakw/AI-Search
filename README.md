@@ -16,6 +16,55 @@ The 9 facts of arcs describe the connections between nodes.
 
 The arc2 predicate says you can either go from X to Y or from Y to X.
 
+# Non-termination due to poor choices
+![image](https://user-images.githubusercontent.com/78870995/153658196-3f731a44-78a6-40ab-a9db-9a947fd59094.png)
+
+![image](https://user-images.githubusercontent.com/78870995/153658481-2e07b78e-0f20-4a0d-b538-8f1f30169fc4.png)
+
+On the left here, it follows this infinite path.
+ 
+ ```
+ prove([],_).
+ prove([H|T],KB) :- member([H|B], KB), append(B,T,Next), prove(Next, KB)
+ 
+ ?- prove([i],[[i,p,q],[i,r],[p,i],[r]]).
+ ```
+ The clauses can be examined using the prove predicate above.
+ 
+ The is part ```[[i,p,q],[i,r],[p,i],[r]] ``` of the query is a data representation of the program in the previous image (i if p,q etc).
+ 
+ We get non-termination due to the infinite path. The path we want is from ```[i]``` to the empty list, but upon execution we never get to explore the black path. How do we get around that? The infinite path was followed due to a poor choice so we can eliminate choice altogether to fix this.
+ 
+ # Determinization (we eliminate choice altogether)
+ 
+ A FSM ```[Trans, Final, Q0]``` such that for all ```[Q, X, QN]``` and ```[Q,X,Qn']``` in ```Trans```, ```Qn = Qn'```.
+ 
+ These triples represent: Q = The current state you are at, X = the symbol you are scanning, Qn being the next state and Qn' meaning there could be two possible post-states. So ```Qn = Qn'``` is stating that they have to be the same. Therefore its deterministic. There's no choice.
+ 
+ See FiniteStateMachine repo.
+ 
+ We say the FSM is deterministic if the trasitions are determined by the Q and X here, meaning there is a unique next state. There is no choice in the matter here.
+ 
+ Fact: Every FSM has a Deterministic Finite Automaton accepting the same language.
+ 
+ Proof of this: Subset (powerset) construction
+ 
+ Apply to  ```Arc ```, ```goal ```,  ```contra trans ``` and  ```Final```. 
+ ```
+ arcD(NodeList, NextList) :- setOf(Next, arcLN(NodeList,Next), NextList).
+ arcLN(NodeList,Next) :- member(Node, Nodelist), arc(Node, Next).
+ goalD(NodeLidt) :- member(Node,NodeList), goal(Node).
+ searchD(NL) :- goalD(NL); (arcD(NL,NL2), searchD(NL2))
+ search(Node) :- searchD([Node]).
+ ```
+ 
+ We have an arc between nodes i.e. between q0 and q1 and here we have ```arcD ``` which is an arc between node lists. 
+ 
+ 
+
+
+
+
 
 
 

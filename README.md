@@ -1,3 +1,16 @@
+
+# Knowledge Base (KB) and arc
+![image](https://user-images.githubusercontent.com/78870995/153007453-f30040c6-daa3-426c-b047-a5d8bf185236.png)
+
+```
+arc(Node1,Node2,KB) :- ???
+
+arc([H|T],N,KB) :- member([H|B],KB), append(B,T,N).
+prove(Node,KB) :- goal(Node) ; arc(Node,Next,KB), prove(Next,KB).
+```
+
+
+
 # Search in Prolog
 We can describe computations as a Search. These two lines of code below are vital:
 Given ```goal``` and ```arc```
@@ -72,7 +85,9 @@ Then the search for this determinised version, ```searchD``` has the same form a
 
 Rather than eliminating choice, we might try to manage choices instead, through Frontier Search.
 
-We have a start node, and we are trying to reach some goal node. We are going to keep track of a frontier of candidate goal nodes. The ```arc``` predicate is a hard constraint on what moves we can make. The frontier is a list of candidate goal nodes. Rather than eliminating the choices, we will be managing the choices using the predicate ```add2frontier```. This tells us how to make our choices. We are still working with a Node List but we are going to explore the nodes one at a time. Just like the ```searchD``` predicate previously, the frontier will always be a on-empty list and we are always examining the head. The base case of ```frontierSearch``` is 'is the head of the list the goal node? If yes, we are done.'. Otherwise,  our inductive case where we have the head and the rest of the frontier.
+We have a start node, and we are trying to reach some goal node. We are going to keep track of a frontier of candidate goal nodes. The ```arc``` predicate is a hard constraint on what moves we can make. The frontier is a list of candidate goal nodes. Rather than eliminating the choices, we will be managing the choices using the predicate ```add2frontier```. This tells us how to make our choices. We are still working with a Node List but we are going to explore the nodes one at a time. Just like the ```searchD``` predicate previously, the frontier will always be a on-empty list and we are always examining the head. The base case of ```frontierSearch``` is 'is the head of the list the goal node? If yes, we are done.'. Otherwise,  our inductive case where we have the head and the rest of the frontier. We collect all the ndoes we can get to from the node here, and put them into ```children```. Then we add those children to the rest of the frontier. Then we have the tail recursion to run frontierSearch with the new frontier.
+
+Its the same as the first Search method we looked at. First you have a search that checks if the current node is the node we want, and then you have the recursive one with an arc and search call with the next node. Except in the case of frontier search, the arc predicate is essentially given by ```findall``` and ```add2frontier```. 
 
 ```
 search(Node) :- frontierSearch([Node]).
@@ -83,7 +98,73 @@ frontierSearch([Node|Rest]) :-
           frontierSearch(NewFrontier).
 ```
 
+## Breadth-first i.e. a FIFO queue
 
+![image](https://user-images.githubusercontent.com/78870995/153713891-01f51219-9cff-46a8-a78b-166e4e5e201e.png)
+
+The children of the head are only explored if the rest of the frontier is empty. If the frontier is not empty, we want to explore the rest of the nodes of the frontier before the children. Thats what this code is doing.
+
+## Depth-first i.e. LIFO stack
+This method leads to the non-termination we saw previously. (the infinite red path)
+
+![image](https://user-images.githubusercontent.com/78870995/153714047-d7f74351-90cf-4675-92b6-a91523e0711d.png)
+
+For depth-first, the rest of the frontier is only investigated if there arent any chidlren of the head. If the head has children, you examine them first.
+
+## Explaining cut (destroys backtracking)
+
+![image](https://user-images.githubusercontent.com/78870995/153714603-37ed17bb-6c48-4b50-bacd-c4186a8eee8f.png)
+
+We are commited to q, meaning we will get a no at the end for the query seen. If we didn't have a cut, we would be able to get to r and would get a yes for the query:
+
+![image](https://user-images.githubusercontent.com/78870995/153714634-a3f3c8dd-84ae-471a-86dc-9af052a34af8.png)
+
+Cut is useful for if-then-else.  How do we understand cut in terms of frontier search?
+
+## Depth-first as frontier search
+```
+prove([], ). % goal([]).
+prove(Node,KB) :- arc(Node,Next,KB), prove(Next,KB).
+```
+
+```
+fs([[]| ], ).
+fs([Node|More],KB) :- findall(X,arc(Node,X),L),
+append(L,More,NewFrontier),
+fs(NewFrontier,KB).
+```
+For ```fs``` (frontier search), we move from a single node to a node list. And if that goal ndoe happens to be the head of our list, then we are done. 
+
+How do we bring cut into this? Lets track the frontier to see.
+
+![image](https://user-images.githubusercontent.com/78870995/153714740-2a354aa4-b11c-4c51-ac2d-0c18e34ff680.png)
+Our frontier consists of a list of nodes. There are two brackets around i because the node happens to be a list. A list of ndoes becomes a list of lists.
+
+![image](https://user-images.githubusercontent.com/78870995/153714770-b99f20e7-8130-48ac-9bba-4926388dc61f.png)
+
+![image](https://user-images.githubusercontent.com/78870995/153714779-d86c55bd-e801-411e-909a-80ca80e5c253.png)
+
+We have lost r from our frontier. 
+
+![image](https://user-images.githubusercontent.com/78870995/153714794-63bb0ed0-592d-4ea5-9e9c-6442076721ca.png)
+
+This empty list we are left with is bad news because it means there aren't any candidate nodes left so our frontier is empty. Usually you might htink having an empty list is good news because it means we at a goal node but the problem is that here, its representing an empty frontier with no nodes in it. So how do we encode the cut in a frontier search?
+
+## Cut via frontier depth-first search
+```
+fs([[]| ], ).
+fs([[cut|T]|_],KB)) :- fs([T],KB).  % _ is rest of frontier
+fs([Node|More],KB) :- Node = [H| ], H\== cut,
+                      findall(X,arc(Node,X),L),
+                      append(L,More,NewFrontier),
+                      fs(NewFrontier,KB).
+
+%reminder of if-then-else and negation-as-failure
+if(p,q,r) :- (p,!,q); r.    % contra (p,q);r
+negation-as-failure(p) :- (p,!,fail); true.
+```
+
+At line 2 cut is getting rid of the rest of the frontier (which is given by the underscore). As such we have to modify line 3 to ```Node = [H| ], H\== cut``` in case the head of our node isnt a cut. If its a cut, we succeed but get rid of the rest of the frontier. But here we are keeping track of the rest; the ```More``` in the append is the response to the underscore.
 
 
 
@@ -119,15 +200,6 @@ yes       goal([])
 
 prove(Node) :- goal(Node).
 prove(Node) :- arc(Node,Next), prove(Next).
-```
-# Knowledge Base (KB) and arc
-![image](https://user-images.githubusercontent.com/78870995/153007453-f30040c6-daa3-426c-b047-a5d8bf185236.png)
-
-```
-arc(Node1,Node2,KB) :- ???
-
-arc([H|T],N,KB) :- member([H|B],KB), append(B,T,N).
-prove(Node,KB) :- goal(Node) ; arc(Node,Next,KB), prove(Next,KB).
 ```
 
 #  Prolog Notes

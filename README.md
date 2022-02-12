@@ -1,3 +1,6 @@
+# Search in Artificial Intelligence
+Computations can be considered search and intelligence refers to choices in these searches
+
 
 # Knowledge Base (KB) and arc
 ![image](https://user-images.githubusercontent.com/78870995/153007453-f30040c6-daa3-426c-b047-a5d8bf185236.png)
@@ -201,18 +204,11 @@ negation-as-failure(p) :- (p,!,fail); true.
 
 At line 2 cut is getting rid of the rest of the frontier (which is given by the underscore). As such we have to modify line 3 to ```Node = [H| ], H\== cut``` in case the head of our node isnt a cut. If its a cut, we succeed but get rid of the rest of the frontier. But here we are keeping track of the rest; the ```More``` in the append is the response to the underscore.
 
+# Costs & Heuristics
 
 
 
 
-
-#  Prolog Notes
-
-goal
-```arc``` is two connected nodes. It refers to an edge in a graph. Like AB for example.
-prove
-member
-append
 
 # Source
 Taken from Tim Fernando's Artificial Intelligence lectures at Trinity College Dublin.

@@ -72,7 +72,7 @@ Then the search for this determinised version, ```searchD``` has the same form a
 
 Rather than eliminating choice, we might try to manage choices instead, through Frontier Search.
 
-We have a start node, and we are trying to reach some goal node. We are going to keep track of a frontier of candidate goal nodes. The ```arc``` predicate is a hard constraint on what moves we can make. The frontier is a list of candidate goal nodes. Rather than eliminating the choices, we will be managing the choices using the predicate ```add2frontier```. This tells us how to make our choices.
+We have a start node, and we are trying to reach some goal node. We are going to keep track of a frontier of candidate goal nodes. The ```arc``` predicate is a hard constraint on what moves we can make. The frontier is a list of candidate goal nodes. Rather than eliminating the choices, we will be managing the choices using the predicate ```add2frontier```. This tells us how to make our choices. We are still working with a Node List but we are going to explore the nodes one at a time. Just like the ```searchD``` predicate previously, the frontier will always be a on-empty list and we are always examining the head. The base case of ```frontierSearch``` is 'is the head of the list the goal node? If yes, we are done.'. Otherwise,  our inductive case where we have the head and the rest of the frontier.
 
 ```
 search(Node) :- frontierSearch([Node]).

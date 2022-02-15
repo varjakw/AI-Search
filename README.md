@@ -204,9 +204,18 @@ negation-as-failure(p) :- (p,!,fail); true.
 
 At line 2 cut is getting rid of the rest of the frontier (which is given by the underscore). As such we have to modify line 3 to ```Node = [H| ], H\== cut``` in case the head of our node isnt a cut. If its a cut, we succeed but get rid of the rest of the frontier. But here we are keeping track of the rest; the ```More``` in the append is the response to the underscore.
 
+See GoalNodes repo for exercise.
+
 # Costs & Heuristics
 
+![image](https://user-images.githubusercontent.com/78870995/154045281-ceeb6c2e-2907-4b2b-ade8-5ace29b6deff.png)
 
+```add2frontier(Children, Rest, [Head|Tail])``` where ```[Head|Tail]``` is the NewFrontier we are constructing from Children and Rest. 
+
+# A*
+![image](https://user-images.githubusercontent.com/78870995/154046086-2e46f943-96d1-48b0-9f45-bf3950366239.png)
+
+```
 
 
 

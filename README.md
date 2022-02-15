@@ -215,7 +215,15 @@ See GoalNodes repo for exercise.
 # A*
 ![image](https://user-images.githubusercontent.com/78870995/154046086-2e46f943-96d1-48b0-9f45-bf3950366239.png)
 
-```
+See AStar.pl for a Prolog implementation of A* search algorithm.
+
+A solution is a path which is a list of nodes connected by links (arcs) to a goal node. 
+
+The crucial property of A* is that it ensures ```Frontier = [Head|Tail]``` where ```Head``` has minimal ```f```. The new frontier we are constructing has a head with minimal f value among all other nodes in the frontier. 
+
+A* is admissibile under cost and heuristics if it returns a solution of minimum cost whenever a solution exists.
+
+
 
 
 

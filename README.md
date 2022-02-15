@@ -223,7 +223,9 @@ The crucial property of A* is that it ensures ```Frontier = [Head|Tail]``` where
 
 A* is admissibile under cost and heuristics if it returns a solution of minimum cost whenever a solution exists.
 
+# Assignment 1
 
+![image](https://user-images.githubusercontent.com/78870995/154078838-c38aae3b-ce23-4353-ad6a-d89f4daa8566.png)
 
 
 
